@@ -2,97 +2,79 @@
 <html lang="hr">
 <head>
   <link rel="icon" type="image/png" href="icon.png">
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Wordle Croatia</title>
   <style>
-    * { box-sizing:border-box; margin:0; padding:0; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      background:#0f0f0f; color:#fff;
-      font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      display:flex; flex-direction:column; align-items:center;
-      min-height:100vh; padding:20px;
+      background: #000; color: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      display: flex; flex-direction: column; align-items: center;
+      min-height: 100vh; padding: 20px;
     }
     h1 {
-      font-size:2.5rem; margin-bottom:10px; text-align:center;
-      display:flex; align-items:center; gap:10px;
+      font-size: 2.5rem; margin-bottom: 20px; text-align: center;
     }
     .grid {
-      display:grid; grid-template-rows:repeat(6,1fr);
-      grid-gap:5px; margin-bottom:20px;
+      display: grid; grid-template-rows: repeat(6, 1fr);
+      grid-gap: 5px; margin-bottom: 20px;
     }
     .row {
-      display:grid; grid-template-columns:repeat(5,60px);
-      grid-gap:5px;
+      display: grid; grid-template-columns: repeat(5, 60px);
+      grid-gap: 5px;
     }
     .tile {
-      width:60px; height:60px; background:#222;
-      border:2px solid #333; display:flex;
-      align-items:center; justify-content:center;
-      font-size:2rem; text-transform:uppercase;
-      backface-visibility:hidden; transform-style:preserve-3d;
+      width: 60px; height: 60px; background: #222;
+      border: 2px solid #333; display: flex;
+      align-items: center; justify-content: center;
+      font-size: 2rem; text-transform: uppercase;
+      transition: background 0.3s, border 0.3s;
     }
-    .flip { animation:flip 0.6s forwards; }
-    @keyframes flip {
-      0%   { transform:rotateX(0); }
-      50%  { transform:rotateX(90deg); }
-      100% { transform:rotateX(0); }
-    }
-    .correct { background:#538d4e; border-color:#538d4e; color:#000; }
-    .present { background:#b59f3b; border-color:#b59f3b; color:#000; }
-    .absent  { background:#3a3a3c; border-color:#3a3a3c; color:#fff; }
-
-    #controls { margin-bottom:5px; }
-    input {
-      padding:10px; font-size:1rem; width:200px;
-      text-transform:lowercase;border-radius:12px;
-      box-shadow: #fff;
-    }
-    button {
-      padding:10px 20px; font-size:1rem; margin-left:10px;
-      background:#538d4e; border:none; border-radius:4px;
-      color:#000; cursor:pointer;font-weight:bold;
-      border-radius:10px;
-    }
-    button:disabled {
-      background:#555; color:#222; cursor:not-allowed;
-    }
+    .correct { background: #538d4e; border-color: #538d4e; color: #000; }
+    .present { background: #b59f3b; border-color: #b59f3b; color: #000; }
+    .absent { background: #3a3a3c; border-color: #3a3a3c; color: #fff; }
 
     #reveal-word {
-      margin-top:10px; font-size:1rem; color:#ff5555;
+      margin-top: 10px; font-size: 1rem; color: #ff5555;
     }
     #correct-count {
-      margin-top:20px; background:#538d4e; color:#000;
-      padding:10px 20px; border-radius:10px;
-      font-size:1.2rem; font-weight:bolder; text-align:center;
+      margin-top: 20px; background: #538d4e; color: #000;
+      padding: 10px 20px; border-radius: 6px;
+      font-size: 1.2rem; font-weight: bold; text-align: center;
     }
     #not-in-list {
-      margin-top:10px; font-size:1rem; color:#ff5555;
+      margin-top: 10px; font-size: 1rem; color: #ff5555;
+    }
+    #next-word-btn {
+      display: none;
+      margin-top: 20px;
+      background: #538d4e;
+      color: #000;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    #next-word-btn:hover {
+      background: #6fbc5c;
     }
   </style>
 </head>
 <body>
 
-  <h1>
-    <img src="icon.png" alt="Logo" width="32" height="32">
-    Wordle
-  </h1>
-
+  <h1><img src="icon.png" alt="Logo" width="32" height="32">
+    Wordle</h1>
   <div class="grid" id="grid"></div>
-
-  <div id="controls">
-    <input type="text" id="guess" maxlength="5" />
-    <button id="goBtn">Pogodi</button>
-    <button id="nextBtn" style="display:none;">Sljedeća riječ</button>
-  </div>
-
   <div id="not-in-list"></div>
   <div id="reveal-word"></div>
   <div id="correct-count">Pogodio si 0 riječi</div>
+  <button id="next-word-btn">Sljedeća riječ</button>
 
   <script>
     const rijeci = [
-     "olovo", "mačke", "kamen", "glava", "polje", "crven", "plava", "zvono", "zebra", "bravo",
+      "olovo", "mačke", "kamen", "glava", "polje", "crven", "plava", "zvono", "zebra", "bravo",
       "lampa", "majka", "mozak", "ulica", "vrije", "zmije", "papir", "patka", "ulica", "noćas",
       "zlato","hrast","ponoć","kazna","rebro","poker","čipka","ljeto","gotov","sudac","fosil",
       "nokat","igrač","crkva","matko","cesta","tigar","lopta","život","torba","istra","drava",
@@ -113,14 +95,17 @@
       "ikona","daska","balon","vrata","ekran","krava","cipar","jakna","frula","malac","petar",
     ];
 
-    let correctCount = 0, attempts = 0, secret = "";
-    const grid       = document.getElementById("grid"),
-          guessEl    = document.getElementById("guess"),
-          goBtn      = document.getElementById("goBtn"),
-          nextBtn    = document.getElementById("nextBtn"),
-          revealDiv  = document.getElementById("reveal-word"),
-          countDiv   = document.getElementById("correct-count"),
-          notListDiv = document.getElementById("not-in-list");
+    let secret = "";
+    let currentRow = 0;
+    let currentGuess = "";
+    let correctCount = 0;
+    let gameEnded = false;
+
+    const grid = document.getElementById("grid");
+    const revealDiv = document.getElementById("reveal-word");
+    const countDiv = document.getElementById("correct-count");
+    const notListDiv = document.getElementById("not-in-list");
+    const nextBtn = document.getElementById("next-word-btn");
 
     function getRandomWord() {
       return rijeci[Math.floor(Math.random() * rijeci.length)];
@@ -140,79 +125,96 @@
       }
     }
 
-    function startGame() {
-      secret = getRandomWord();
-      attempts = 0;
-      revealDiv.textContent = "";
-      notListDiv.textContent = "";
-      initGrid();
-      guessEl.value = "";
-      guessEl.disabled = goBtn.disabled = false;
-      nextBtn.style.display = "none";
-      guessEl.focus();
+    function updateTiles() {
+      const row = grid.children[currentRow];
+      for (let i = 0; i < 5; i++) {
+        const tile = row.children[i];
+        tile.textContent = currentGuess[i] || "";
+      }
     }
 
-    function revealRow(rowEl, guess) {
+    function revealRow(guess) {
+      const row = grid.children[currentRow];
       const letters = secret.split("");
       for (let i = 0; i < 5; i++) {
-        const tile = rowEl.children[i];
-        tile.textContent = guess[i];
-        tile.classList.add("flip");
-        setTimeout(() => {
-          const state = 
-            guess[i] === letters[i] ? 'correct' :
-            letters.includes(guess[i]) ? 'present' :
-            'absent';
-          tile.classList.add(state);
-        }, i * 300);
+        const tile = row.children[i];
+        const letter = guess[i];
+        if (letter === letters[i]) {
+          tile.classList.add("correct");
+        } else if (letters.includes(letter)) {
+          tile.classList.add("present");
+        } else {
+          tile.classList.add("absent");
+        }
       }
     }
 
     function endGame(won) {
-      guessEl.disabled = goBtn.disabled = true;
-      if (!won) {
-        revealDiv.textContent = `Riječ je bila: ${secret.toUpperCase()}`;
-      } else {
+      gameEnded = true;
+      nextBtn.style.display = "inline-block";
+      if (won) {
         correctCount++;
         countDiv.textContent = `Pogodio si ${correctCount} riječi`;
+        revealDiv.textContent = "";
+      } else {
+        revealDiv.textContent = `Riječ je bila: ${secret.toUpperCase()}`;
       }
-      nextBtn.style.display = "inline-block";
     }
 
-    goBtn.addEventListener("click", () => {
-      notListDiv.textContent = "";
-      const val = guessEl.value.toLowerCase().trim();
-      if (val.length !== 5) {
-        alert("Unesite točno 5 slova!");
-        return;
-      }
-      if (!rijeci.includes(val)) {
-        notListDiv.textContent = "Riječ nije na popisu";
-        return;
-      }
-      const rowEl = grid.children[attempts];
-      revealRow(rowEl, val);
-      attempts++;
-      guessEl.value = "";
-      if (val === secret) endGame(true);
-      else if (attempts === 6) endGame(false);
-    });
+    function handleKey(e) {
+      if (gameEnded) return;
 
-    guessEl.addEventListener("keydown", e => {
-      if (e.key === "Enter" && !goBtn.disabled) goBtn.click();
-    });
+      notListDiv.textContent = "";
+
+      if (e.key === "Enter") {
+        if (currentGuess.length !== 5) return;
+        if (!rijeci.includes(currentGuess)) {
+          notListDiv.textContent = "Riječ nije na popisu";
+          return;
+        }
+        revealRow(currentGuess);
+        if (currentGuess === secret) {
+          endGame(true);
+          return;
+        }
+        currentRow++;
+        if (currentRow === 6) {
+          endGame(false);
+          return;
+        }
+        currentGuess = "";
+        updateTiles();
+        return;
+      }
+
+      if (e.key === "Backspace") {
+        currentGuess = currentGuess.slice(0, -1);
+        updateTiles();
+        return;
+      }
+
+      if (/^[a-zA-ZčćžšđČĆŽŠĐ]$/.test(e.key) && currentGuess.length < 5) {
+        currentGuess += e.key.toLowerCase();
+        updateTiles();
+      }
+    }
+
+    function startGame() {
+      secret = getRandomWord();
+      currentRow = 0;
+      currentGuess = "";
+      gameEnded = false;
+      revealDiv.textContent = "";
+      notListDiv.textContent = "";
+      nextBtn.style.display = "none";
+      initGrid();
+      updateTiles();
+    }
 
     nextBtn.addEventListener("click", startGame);
-
-    // start
-    countDiv.textContent = `Pogodio si ${correctCount} riječi`;
+    document.addEventListener("keydown", handleKey);
     startGame();
   </script>
 
 </body>
 </html>
-
-
-
-
-
