@@ -8,7 +8,7 @@
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      background: #000; color: #fff;
+      background:#111111; color: #fff;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       display: flex; flex-direction: column; align-items: center;
       min-height: 100vh; padding: 20px;
@@ -71,8 +71,8 @@
   <div class="grid" id="grid"></div>
   <div id="not-in-list"></div>
   <div id="reveal-word"></div>
-  <div id="correct-count">Pogodio si 0 riječi</div>
-  <button id="next-word-btn">Sljedeća riječ</button>
+  <div id="correct-count">POGODIO : 0 </div>
+  <button id="next-word-btn">SLJEDEĆA RIJEČ</button>
 
   <script>
     const rijeci = [
@@ -95,7 +95,8 @@
       "nekad","moram","zoran","devet","frend","slang","super","ugled","sunce","melem","banka",
       "nikad","zidam","zapad","moler","izlaz","šesto","miris","molim","vokal","azija","milan",
       "ikona","daska","balon","vrata","ekran","krava","cipar","jakna","frula","malac","petar",
-      "kotar","audio","sport","kotač","staro","kabel"
+      "kotar","audio","sport","kotač","staro","kabel","korak","nokat","jesam","nerad","teren",
+      "perem",
     ];
 
     let secret = "";
@@ -157,7 +158,7 @@
       nextBtn.style.display = "inline-block";
       if (won) {
         correctCount++;
-        countDiv.textContent = `Pogodio si ${correctCount} riječi`;
+        countDiv.textContent = `Pogodio si ${correctCount} riječ`;
         revealDiv.textContent = "";
       } else {
         revealDiv.textContent = `Riječ je bila: ${secret.toUpperCase()}`;
