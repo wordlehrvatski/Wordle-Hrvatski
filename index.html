@@ -60,8 +60,68 @@
       
     }
     #next-word-btn:hover {
-      background: #6fbc5c;
+      background: #538d4e;
     }
+
+   footer {
+  margin-top: 40px;
+  text-align: center;
+}
+
+#twitter-link {
+  display: inline-block;
+  padding: 10px;
+  background-color: #538d4e;
+  border-radius: 10px;
+  transition: background 0.3s;
+}
+
+#twitter-link:hover {
+  background-color: #436f3d;
+}
+
+
+#twitter-link svg {
+  vertical-align: middle;
+  transition: fill 0.3s;
+}
+
+#twitter-link:hover svg {
+  fill: #fff;
+}
+
+.copyright {
+  text-align: center;
+  color: #538d4e;
+  font-size: 14px;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  background-color: #111;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+
+body {
+      background-color: #121213;
+      color: #fcfcfc;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+    .rank-box {
+      background-color: #111;
+      padding: 20px 40px;
+      margin: 1px auto;
+      border-radius: 12px;
+      width: fit-content;
+      font-weight: bold;
+      font-size: 19px;
+      border: 2px solid #538d4e;
+      user-select: none;
+    }
+
+
   </style>
 </head>
 <body>
@@ -71,8 +131,15 @@
   <div class="grid" id="grid"></div>
   <div id="not-in-list"></div>
   <div id="reveal-word"></div>
-  <div id="correct-count">POGODIO : 0 </div>
   <button id="next-word-btn">SLJEDEĆA RIJEČ</button>
+
+  <div id="rankBox" class="rank-box">Rank: Početnik</div>
+
+
+  
+
+
+  
 
   <script>
     const rijeci = [
@@ -96,7 +163,7 @@
       "nikad","zidam","zapad","moler","izlaz","šesto","miris","molim","vokal","azija","milan",
       "ikona","daska","balon","vrata","ekran","krava","cipar","jakna","frula","malac","petar",
       "kotar","audio","sport","kotač","staro","kabel","korak","nokat","jesam","nerad","teren",
-      "perem",
+      "perem","nizak","visok"
     ];
 
     let secret = "";
@@ -107,7 +174,6 @@
 
     const grid = document.getElementById("grid");
     const revealDiv = document.getElementById("reveal-word");
-    const countDiv = document.getElementById("correct-count");
     const notListDiv = document.getElementById("not-in-list");
     const nextBtn = document.getElementById("next-word-btn");
 
@@ -218,7 +284,38 @@
     nextBtn.addEventListener("click", startGame);
     document.addEventListener("keydown", handleKey);
     startGame();
+
+  
+     // Učitaj broj pogođenih riječi iz localStorage
+    const pogodeneRijeci = parseInt(localStorage.getItem('pogodeneRijeci')) || 0;
+
+    function getRank(words) {
+       if (words >= 150) return "Master";
+      if (words >= 105) return "Diamond";
+      if (words >= 85) return "Platinuim";
+      if (words >= 60) return "Gold";
+      if (words >= 40) return "Silver";
+      if (words >= 25) return "Bronze";
+      return "Iron";
+    }
+
+    // Prikaži rank u divu
+    document.getElementById('rankBox').textContent = 'Rank: ' + getRank(pogodeneRijeci);
+  
+  
   </script>
+
+  <footer>
+  <a href="https://x.com/wordlecro" target="_blank" id="twitter-link" aria-label="Twitter profil">
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="white" viewBox="0 0 24 24">
+      <path d="M22.25 0H1.75C.78 0 0 .78 0 1.75v20.5C0 23.22.78 24 1.75 24h20.5c.97 0 1.75-.78 1.75-1.75V1.75C24 .78 23.22 0 22.25 0zM17.05 17.39h-2.34l-2.69-3.49-2.69 3.49H6.99l3.9-5.01-3.75-4.82h2.34l2.52 3.26 2.52-3.26h2.34l-3.75 4.82 3.94 5.01z"/>
+    </svg>
+  </a>
+</footer>
+
+<div class="copyright">
+  © 2025 WordleCro.
+</div>
 
 </body>
 </html>
