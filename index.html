@@ -55,28 +55,6 @@
     button:disabled {
       background:#555; color:#222; cursor:not-allowed;
     }
-    #keyboard {
-      margin-top:20px;
-      display:flex; flex-direction:column; gap:8px;
-      user-select:none;
-    }
-    .key-row {
-      display:flex; justify-content:center; gap:6px;
-    }
-    .key {
-      padding:12px;
-      min-width: 30px;
-      background:#444;
-      border:none;
-      border-radius:4px;
-      color:#fff;
-      font-size:0.9rem;
-      cursor:pointer;
-    }
-    .key.wide { min-width: 50px; }
-    .key.correct { background:#538d4e; color:#000; }
-    .key.present { background:#b59f3b; color:#000; }
-    .key.absent  { background:#3a3a3c; color:#fff; }
 
     #reveal-word {
       margin-top:10px; font-size:1rem; color:#ff5555;
@@ -110,16 +88,9 @@
   <div id="reveal-word"></div>
   <div id="correct-count">Pogodio si 0 riječi</div>
 
-  <!-- On-screen tipkovnica -->
-  <div id="keyboard">
-    <div class="key-row" id="row1"></div>
-    <div class="key-row" id="row2"></div>
-    <div class="key-row" id="row3"></div>
-  </div>
-
   <script>
     const rijeci = [
-      "olovo", "mačke", "kamen", "glava", "polje", "crven", "plava", "zvono", "zebra", "bravo",
+     "olovo", "mačke", "kamen", "glava", "polje", "crven", "plava", "zvono", "zebra", "bravo",
       "lampa", "majka", "mozak", "ulica", "vrije", "zmije", "papir", "patka", "ulica", "noćas",
       "zlato","hrast","ponoć","kazna","rebro","poker","čipka","ljeto","gotov","sudac","fosil",
       "nokat","igrač","crkva","matko","cesta","tigar","lopta","život","torba","istra","drava",
@@ -147,41 +118,6 @@
           revealDiv  = document.getElementById("reveal-word"),
           countDiv   = document.getElementById("correct-count"),
           notListDiv = document.getElementById("not-in-list");
-
-    // Keyboard layout
-    const layout = [
-      ['Q','W','E','R','T','Y','U','I','O','P'],
-      ['A','S','D','F','G','H','J','K','L'],
-      ['Enter','Z','X','C','V','B','N','M','←']
-    ];
-
-    // Initialize on-screen keyboard
-    function initKeyboard() {
-      layout.forEach((row, i) => {
-        const rowEl = document.getElementById('row'+(i+1));
-        row.forEach(key => {
-          const btn = document.createElement('button');
-          btn.textContent = key;
-          btn.className = 'key' + (key.length>1?' wide':'');
-          btn.addEventListener('click', () => handleKey(key));
-          rowEl.appendChild(btn);
-        });
-      });
-    }
-
-    function handleKey(key) {
-      if (goBtn.disabled) return;
-      if (key === 'Enter') {
-        goBtn.click();
-      } else if (key === '←') {
-        guessEl.value = guessEl.value.slice(0, -1);
-      } else {
-        if (guessEl.value.length < 5) {
-          guessEl.value += key.toLowerCase();
-        }
-      }
-      guessEl.focus();
-    }
 
     function getRandomWord() {
       return rijeci[Math.floor(Math.random() * rijeci.length)];
@@ -225,12 +161,6 @@
             letters.includes(guess[i]) ? 'present' :
             'absent';
           tile.classList.add(state);
-          // also color the on-screen key
-          document.querySelectorAll('.key').forEach(k => {
-            if (k.textContent.toLowerCase() === guess[i]) {
-              k.classList.add(state);
-            }
-          });
         }, i * 300);
       }
     }
@@ -265,16 +195,13 @@
       else if (attempts === 6) endGame(false);
     });
 
-    // ENTER/backspace s fizičke tipkovnice
     guessEl.addEventListener("keydown", e => {
       if (e.key === "Enter" && !goBtn.disabled) goBtn.click();
-      if (e.key === "Backspace") return; // default
     });
 
     nextBtn.addEventListener("click", startGame);
 
     // start
-    initKeyboard();
     countDiv.textContent = `Pogodio si ${correctCount} riječi`;
     startGame();
   </script>
