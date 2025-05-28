@@ -63,33 +63,7 @@
       background: #538d4e;
     }
 
-   footer {
-  margin-top: 40px;
-  text-align: center;
-}
-
-#twitter-link {
-  display: inline-block;
-  padding: 10px;
-  background-color: #538d4e;
-  border-radius: 10px;
-  transition: background 0.3s;
-}
-
-#twitter-link:hover {
-  background-color: #436f3d;
-}
-
-
-#twitter-link svg {
-  vertical-align: middle;
-  transition: fill 0.3s;
-}
-
-#twitter-link:hover svg {
-  fill: #fff;
-}
-
+  
 .copyright {
   text-align: center;
   color: #538d4e;
@@ -121,6 +95,21 @@ body {
     }
 
 
+  .icons {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 40px;
+}
+
+.icon {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  filter: brightness(0) saturate(100%) invert(58%) sepia(15%) saturate(992%) hue-rotate(60deg) brightness(92%) contrast(90%);
+}
+
+
   </style>
 </head>
 <body>
@@ -134,7 +123,7 @@ body {
 
   <div id="rankBox" class="rank-box">Rank: Početnik</div>
 
-
+   
   
 
 
@@ -304,13 +293,18 @@ body {
   
   </script>
 
-  <footer>
-  <a href="https://x.com/wordlecro" target="_blank" id="twitter-link" aria-label="Twitter profil">
-    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="white" viewBox="0 0 24 24">
-      <path d="M22.25 0H1.75C.78 0 0 .78 0 1.75v20.5C0 23.22.78 24 1.75 24h20.5c.97 0 1.75-.78 1.75-1.75V1.75C24 .78 23.22 0 22.25 0zM17.05 17.39h-2.34l-2.69-3.49-2.69 3.49H6.99l3.9-5.01-3.75-4.82h2.34l2.52 3.26 2.52-3.26h2.34l-3.75 4.82 3.94 5.01z"/>
-    </svg>
+  <div class="icons">
+  <!-- X (Twitter) -->
+  <a href="https://x.com/wordlecro" target="_blank" title="(X)">
+     <img src="https://abs.twimg.com/favicons/twitter.2.ico" alt="X" class="icon" />
   </a>
-</footer>
+
+  <!-- PayPal -->
+  <a href="https://paypal.me/BabakGG?country.x=HR&locale.x=en_US" target="_blank" title="PayPal">
+    <img src="https://www.paypalobjects.com/webstatic/icon/pp258.png" alt="PayPal" class="icon" />
+  </a>
+</div>
+
 
 <div class="copyright">
   © 2025 WordleCro.
