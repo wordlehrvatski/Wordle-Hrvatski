@@ -4,7 +4,7 @@
   <link rel="icon" type="image/png" href="icon.png">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Wordle Croatia</title>
+  <title>Wordle Hrvatski</title>
   <style>
     * { box-sizing:border-box; margin:0; padding:0; }
     body {
@@ -15,6 +15,7 @@
     }
     h1 {
       font-size:2.5rem; margin-bottom:10px; text-align:center;
+      display:flex; align-items:center; gap:10px;
     }
     .grid {
       display:grid; grid-template-rows:repeat(6,1fr);
@@ -31,9 +32,7 @@
       font-size:2rem; text-transform:uppercase;
       backface-visibility:hidden; transform-style:preserve-3d;
     }
-    .flip {
-      animation:flip 0.6s forwards;
-    }
+    .flip { animation:flip 0.6s forwards; }
     @keyframes flip {
       0%   { transform:rotateX(0); }
       50%  { transform:rotateX(90deg); }
@@ -43,32 +42,49 @@
     .present { background:#b59f3b; border-color:#b59f3b; color:#000; }
     .absent  { background:#3a3a3c; border-color:#3a3a3c; color:#fff; }
 
-    #controls { margin-bottom:20px; }
+    #controls { margin-bottom:10px; }
     input {
       padding:10px; font-size:1rem; width:200px;
       text-transform:lowercase;
     }
     button {
       padding:10px 20px; font-size:1rem; margin-left:10px;
-      background:#538d4e; /* ista zelena kao .correct */
-      border:none; border-radius:4px;
+      background:#538d4e; border:none; border-radius:4px;
       color:#000; cursor:pointer;
     }
     button:disabled {
       background:#555; color:#222; cursor:not-allowed;
     }
+    #keyboard {
+      margin-top:20px;
+      display:flex; flex-direction:column; gap:8px;
+      user-select:none;
+    }
+    .key-row {
+      display:flex; justify-content:center; gap:6px;
+    }
+    .key {
+      padding:12px;
+      min-width: 30px;
+      background:#444;
+      border:none;
+      border-radius:4px;
+      color:#fff;
+      font-size:0.9rem;
+      cursor:pointer;
+    }
+    .key.wide { min-width: 50px; }
+    .key.correct { background:#538d4e; color:#000; }
+    .key.present { background:#b59f3b; color:#000; }
+    .key.absent  { background:#3a3a3c; color:#fff; }
+
     #reveal-word {
       margin-top:10px; font-size:1rem; color:#ff5555;
     }
     #correct-count {
-      margin-top:20px;
-      background: #538d4e;
-      color: #000;
-      padding: 10px 20px;
-      border-radius: 6px;
-      font-size: 1.2rem;
-      font-weight: bold;
-      text-align: center;
+      margin-top:20px; background:#538d4e; color:#000;
+      padding:10px 20px; border-radius:6px;
+      font-size:1.2rem; font-weight:bold; text-align:center;
     }
     #not-in-list {
       margin-top:10px; font-size:1rem; color:#ff5555;
@@ -77,12 +93,15 @@
 </head>
 <body>
 
-  <h1>Wordle</h1>
+  <h1>
+    <img src="icon.png" alt="Logo" width="32" height="32">
+    Wordle
+  </h1>
 
   <div class="grid" id="grid"></div>
 
   <div id="controls">
-    <input type="text" id="guess" maxlength="5"/>
+    <input type="text" id="guess" maxlength="5" />
     <button id="goBtn">Pogodi</button>
     <button id="nextBtn" style="display:none;">Sljedeća riječ</button>
   </div>
@@ -91,10 +110,16 @@
   <div id="reveal-word"></div>
   <div id="correct-count">Pogodio si 0 riječi</div>
 
+  <!-- On-screen tipkovnica -->
+  <div id="keyboard">
+    <div class="key-row" id="row1"></div>
+    <div class="key-row" id="row2"></div>
+    <div class="key-row" id="row3"></div>
+  </div>
+
   <script>
-    // Lista 5-slovnih riječi na hrvatskom
     const rijeci = [
-    "olovo", "mačke", "kamen", "glava", "polje", "crven", "plava", "zvono", "zebra", "bravo",
+      "olovo", "mačke", "kamen", "glava", "polje", "crven", "plava", "zvono", "zebra", "bravo",
       "lampa", "majka", "mozak", "ulica", "vrije", "zmije", "papir", "patka", "ulica", "noćas",
       "zlato","hrast","ponoć","kazna","rebro","poker","čipka","ljeto","gotov","sudac","fosil",
       "nokat","igrač","crkva","matko","cesta","tigar","lopta","život","torba","istra","drava",
@@ -114,17 +139,49 @@
       "nikad","zidam","zapad","moler","izlaz","šesto","miris","molim"
     ];
 
-    let correctCount = 0;
-    let attempts = 0;
-    let secret = "";
+    let correctCount = 0, attempts = 0, secret = "";
+    const grid       = document.getElementById("grid"),
+          guessEl    = document.getElementById("guess"),
+          goBtn      = document.getElementById("goBtn"),
+          nextBtn    = document.getElementById("nextBtn"),
+          revealDiv  = document.getElementById("reveal-word"),
+          countDiv   = document.getElementById("correct-count"),
+          notListDiv = document.getElementById("not-in-list");
 
-    const grid       = document.getElementById("grid");
-    const guessEl    = document.getElementById("guess");
-    const goBtn      = document.getElementById("goBtn");
-    const nextBtn    = document.getElementById("nextBtn");
-    const revealDiv  = document.getElementById("reveal-word");
-    const countDiv   = document.getElementById("correct-count");
-    const notListDiv = document.getElementById("not-in-list");
+    // Keyboard layout
+    const layout = [
+      ['Q','W','E','R','T','Y','U','I','O','P'],
+      ['A','S','D','F','G','H','J','K','L'],
+      ['Enter','Z','X','C','V','B','N','M','←']
+    ];
+
+    // Initialize on-screen keyboard
+    function initKeyboard() {
+      layout.forEach((row, i) => {
+        const rowEl = document.getElementById('row'+(i+1));
+        row.forEach(key => {
+          const btn = document.createElement('button');
+          btn.textContent = key;
+          btn.className = 'key' + (key.length>1?' wide':'');
+          btn.addEventListener('click', () => handleKey(key));
+          rowEl.appendChild(btn);
+        });
+      });
+    }
+
+    function handleKey(key) {
+      if (goBtn.disabled) return;
+      if (key === 'Enter') {
+        goBtn.click();
+      } else if (key === '←') {
+        guessEl.value = guessEl.value.slice(0, -1);
+      } else {
+        if (guessEl.value.length < 5) {
+          guessEl.value += key.toLowerCase();
+        }
+      }
+      guessEl.focus();
+    }
 
     function getRandomWord() {
       return rijeci[Math.floor(Math.random() * rijeci.length)];
@@ -163,9 +220,17 @@
         tile.textContent = guess[i];
         tile.classList.add("flip");
         setTimeout(() => {
-          if (guess[i] === letters[i])       tile.classList.add("correct");
-          else if (letters.includes(guess[i])) tile.classList.add("present");
-          else                                tile.classList.add("absent");
+          const state = 
+            guess[i] === letters[i] ? 'correct' :
+            letters.includes(guess[i]) ? 'present' :
+            'absent';
+          tile.classList.add(state);
+          // also color the on-screen key
+          document.querySelectorAll('.key').forEach(k => {
+            if (k.textContent.toLowerCase() === guess[i]) {
+              k.classList.add(state);
+            }
+          });
         }, i * 300);
       }
     }
@@ -200,20 +265,23 @@
       else if (attempts === 6) endGame(false);
     });
 
-    // Enter podrška
+    // ENTER/backspace s fizičke tipkovnice
     guessEl.addEventListener("keydown", e => {
       if (e.key === "Enter" && !goBtn.disabled) goBtn.click();
+      if (e.key === "Backspace") return; // default
     });
 
     nextBtn.addEventListener("click", startGame);
 
-    // Start first game
+    // start
+    initKeyboard();
     countDiv.textContent = `Pogodio si ${correctCount} riječi`;
     startGame();
   </script>
-  
+
 </body>
 </html>
+
 
 
 
