@@ -3,164 +3,98 @@
 <head>
   <link rel="icon" type="image/png" href="icon.png">
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Wordle Croatia</title>
   <style>
+    * { box-sizing:border-box; margin:0; padding:0; }
     body {
-      font-family: Arial, sans-serif;
-      background: #121212; /* svijetlo crna / tamno siva */
-      margin: 0; padding: 20px;
-      text-align: center;
-      color: #e0e0e0; /* svijetli tekst */
+      background:#000; color:#fff;
+      font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      display:flex; flex-direction:column; align-items:center;
+      min-height:100vh; padding:20px;
     }
-
     h1 {
-      color: #ffffff;
-      margin-bottom: 25px;
-      text-shadow: 0 0 5px #2bff00;
-      font-size: 2.5em;
+      font-size:2.5rem; margin-bottom:10px; text-align:center;
     }
-
-    h6 {
-    color: #ffffff;
-    text-align: center; 
-    font-size: 12px;
+    .grid {
+      display:grid; grid-template-rows:repeat(6,1fr);
+      grid-gap:5px; margin-bottom:20px;
     }
-
-    #game {
-      display: grid;
-      grid-template-columns: repeat(5, 60px);
-      gap: 5px;
-      justify-content: center;
-      margin-bottom: 20px;
+    .row {
+      display:grid; grid-template-columns:repeat(5,60px);
+      grid-gap:5px;
     }
-
     .tile {
-      width: 60px;
-      height: 60px;
-      font-size: 2em;
-      border: 2px solid #444;
-      background-color: #222;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-transform: uppercase;
-      border-radius: 8px;
-      color: #ffffff;
-      user-select: none;
-      box-shadow: 0 0 5px #000;
-      transition: background-color 0.3s ease;
+      width:60px; height:60px; background:#222;
+      border:2px solid #333; display:flex;
+      align-items:center; justify-content:center;
+      font-size:2rem; text-transform:uppercase;
+      backface-visibility:hidden; transform-style:preserve-3d;
     }
+    .flip {
+      animation:flip 0.6s forwards;
+    }
+    @keyframes flip {
+      0%   { transform:rotateX(0); }
+      50%  { transform:rotateX(90deg); }
+      100% { transform:rotateX(0); }
+    }
+    .correct { background:#538d4e; border-color:#538d4e; color:#000; }
+    .present { background:#b59f3b; border-color:#b59f3b; color:#000; }
+    .absent  { background:#3a3a3c; border-color:#3a3a3c; color:#fff; }
 
-    .correct {
-      background-color: #17cc11; /* tamno zelena */
-      color: #000;
-      border-color: #00ff0d;
-      box-shadow: 0 0 8px #000000;
+    #controls { margin-bottom:20px; }
+    input {
+      padding:10px; font-size:1rem; width:200px;
+      text-transform:lowercase;
     }
-
-    .present {
-      background-color: #ff9100; /* tamno narančasta */
-      color: #000;
-      border-color: #ff9100;
-      box-shadow: 0 0 8px #000000;
-    }
-
-    .absent {
-      background-color: #555;
-      color: #bbb;
-      border-color: #555;
-      box-shadow: none;
-    }
-
-    input[type="text"] {
-      font-size: 1.5em;
-      padding: 10px;
-      width: 320px;
-      max-width: 90vw;
-      text-align: center;
-      border-radius: 8px;
-      border: 2px solid #444;
-      background-color: #222;
-      color: #eee;
-      margin-bottom: 10px;
-      outline: none;
-      transition: border-color 0.3s ease;
-    }
-    input[type="text"]:focus {
-      border-color: #2bff00;
-      background-color: #1a1a1a;
-    }
-
     button {
-      font-size: 1.2em;
-      padding: 10px 20px;
-      border-radius: 8px;
-      border: none;
-      background-color: #2bff00;
-      color: #000000;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-      font-weight: bold;
-      box-shadow: 0 0 8px #000000;
-      margin-top: 10px;
+      padding:10px 20px; font-size:1rem; margin-left:10px;
+      background:#538d4e; /* ista zelena kao .correct */
+      border:none; border-radius:4px;
+      color:#000; cursor:pointer;
     }
-
-    button:hover:not(:disabled) {
-      background-color: #2bff00;
-    }
-
     button:disabled {
-      background-color: #333;
-      color: #777;
-      cursor: not-allowed;
-      box-shadow: none;
+      background:#555; color:#222; cursor:not-allowed;
     }
-
-    #message {
-      margin-top: 20px;
+    #reveal-word {
+      margin-top:10px; font-size:1rem; color:#ff5555;
+    }
+    #correct-count {
+      margin-top:20px;
+      background: #538d4e;
+      color: #000;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 1.2rem;
       font-weight: bold;
-      font-size: 1.2em;
-      min-height: 1.5em;
-      color: #2bff00;
-      text-shadow: 0 0 5px #000000;
+      text-align: center;
     }
-
-    #newGameBtn {
-      display: none;
-      background-color: #2bff00;
-      color: white;
-      box-shadow: 0 0 8px #000000;
+    #not-in-list {
+      margin-top:10px; font-size:1rem; color:#ff5555;
     }
-    
   </style>
 </head>
 <body>
-  
+
   <h1>Wordle</h1>
 
-  <div id="game"></div>
-  
-  <input
-    type="text"
-    id="guess"
-    maxlength="5"
-    placeholder="Upiši riječ od 5 slova"
-    autocomplete="off"
-    autocorrect="off"
-    autocapitalize="off"
-    spellcheck="false"
-  />
-  <br />
-  <button id="submitBtn">Pogodi</button>
-  <br />
-  <button id="newGameBtn">Nova igra</button>
+  <div class="grid" id="grid"></div>
 
-  <div id="message"></div>
+  <div id="controls">
+    <input type="text" id="guess" maxlength="5"/>
+    <button id="goBtn">Pogodi</button>
+    <button id="nextBtn" style="display:none;">Sljedeća riječ</button>
+  </div>
+
+  <div id="not-in-list"></div>
+  <div id="reveal-word"></div>
+  <div id="correct-count">Pogodio si 0 riječi</div>
 
   <script>
+    // Lista 5-slovnih riječi na hrvatskom
     const rijeci = [
-      "olovo", "mačke", "kamen", "glava", "polje", "crven", "plava", "zvono", "zebra", "bravo",
+    "olovo", "mačke", "kamen", "glava", "polje", "crven", "plava", "zvono", "zebra", "bravo",
       "lampa", "majka", "mozak", "ulica", "vrije", "zmije", "papir", "patka", "ulica", "noćas",
       "zlato","hrast","ponoć","kazna","rebro","poker","čipka","ljeto","gotov","sudac","fosil",
       "nokat","igrač","crkva","matko","cesta","tigar","lopta","život","torba","istra","drava",
@@ -180,123 +114,107 @@
       "nikad","zidam","zapad","moler","izlaz","šesto","miris","molim"
     ];
 
-    let tajnaRijec;
-    const gameDiv = document.getElementById("game");
-    const message = document.getElementById("message");
-    const input = document.getElementById("guess");
-    const submitBtn = document.getElementById("submitBtn");
-    const newGameBtn = document.getElementById("newGameBtn");
+    let correctCount = 0;
+    let attempts = 0;
+    let secret = "";
 
-    let pokusajBroj;
+    const grid       = document.getElementById("grid");
+    const guessEl    = document.getElementById("guess");
+    const goBtn      = document.getElementById("goBtn");
+    const nextBtn    = document.getElementById("nextBtn");
+    const revealDiv  = document.getElementById("reveal-word");
+    const countDiv   = document.getElementById("correct-count");
+    const notListDiv = document.getElementById("not-in-list");
 
-    function ocijeniPokusaj(pokusaj, tajna) {
-      const rezultat = [];
-      const tajnaSlova = tajna.split("");
-      const pokusajSlova = pokusaj.split("");
-      const tajnaSlovaKopija = [...tajnaSlova];
+    function getRandomWord() {
+      return rijeci[Math.floor(Math.random() * rijeci.length)];
+    }
 
-      for (let i = 0; i < 5; i++) {
-        if (pokusajSlova[i] === tajnaSlova[i]) {
-          rezultat[i] = "correct";
-          tajnaSlovaKopija[i] = null;
-        } else {
-          rezultat[i] = null;
+    function initGrid() {
+      grid.innerHTML = "";
+      for (let r = 0; r < 6; r++) {
+        const row = document.createElement("div");
+        row.className = "row";
+        for (let c = 0; c < 5; c++) {
+          const tile = document.createElement("div");
+          tile.className = "tile";
+          row.appendChild(tile);
         }
+        grid.appendChild(row);
       }
+    }
 
+    function startGame() {
+      secret = getRandomWord();
+      attempts = 0;
+      revealDiv.textContent = "";
+      notListDiv.textContent = "";
+      initGrid();
+      guessEl.value = "";
+      guessEl.disabled = goBtn.disabled = false;
+      nextBtn.style.display = "none";
+      guessEl.focus();
+    }
+
+    function revealRow(rowEl, guess) {
+      const letters = secret.split("");
       for (let i = 0; i < 5; i++) {
-        if (rezultat[i] === null) {
-          if (tajnaSlovaKopija.includes(pokusajSlova[i])) {
-            rezultat[i] = "present";
-            tajnaSlovaKopija[tajnaSlovaKopija.indexOf(pokusajSlova[i])] = null;
-          } else {
-            rezultat[i] = "absent";
-          }
-        }
+        const tile = rowEl.children[i];
+        tile.textContent = guess[i];
+        tile.classList.add("flip");
+        setTimeout(() => {
+          if (guess[i] === letters[i])       tile.classList.add("correct");
+          else if (letters.includes(guess[i])) tile.classList.add("present");
+          else                                tile.classList.add("absent");
+        }, i * 300);
       }
-
-      return rezultat;
     }
 
-    function prikaziPokusaj(pokusaj, ocjena) {
-      const red = document.createElement("div");
-      red.style.display = "contents";
-
-      for (let i = 0; i < 5; i++) {
-        const tile = document.createElement("div");
-        tile.classList.add("tile", ocjena[i]);
-        tile.textContent = pokusaj[i].toUpperCase();
-        red.appendChild(tile);
-      }
-
-      gameDiv.appendChild(red);
-    }
-
-    function zavrsiIgru(poruka) {
-      message.textContent = poruka;
-      input.disabled = true;
-      submitBtn.disabled = true;
-      newGameBtn.style.display = "inline-block";
-    }
-
-    function submitGuess() {
-      const pokusaj = input.value.toLowerCase().trim();
-
-      if (pokusaj.length !== 5) {
-        message.textContent = "Riječ mora imati točno 5 slova.";
-        return;
-      }
-
-      if (!rijeci.includes(pokusaj)) {
-        message.textContent = "Riječ nije na popisu.";
-        return;
-      }
-
-      const ocjena = ocijeniPokusaj(pokusaj, tajnaRijec);
-      prikaziPokusaj(pokusaj, ocjena);
-
-      pokusajBroj++;
-      input.value = "";
-      input.focus();
-
-      if (pokusaj === tajnaRijec) {
-        zavrsiIgru("Čestitke! Pogodili ste riječ!");
-      } else if (pokusajBroj === 6) {
-        zavrsiIgru(`Nažalost, niste pogodili. Riječ je bila: ${tajnaRijec.toUpperCase()}`);
+    function endGame(won) {
+      guessEl.disabled = goBtn.disabled = true;
+      if (!won) {
+        revealDiv.textContent = `Riječ je bila: ${secret.toUpperCase()}`;
       } else {
-        message.textContent = "";
+        correctCount++;
+        countDiv.textContent = `Pogodio si ${correctCount} riječi`;
       }
+      nextBtn.style.display = "inline-block";
     }
 
-    function novaIgra() {
-      tajnaRijec = rijeci[Math.floor(Math.random() * rijeci.length)].trim();
-      pokusajBroj = 0;
-      gameDiv.innerHTML = "";
-      message.textContent = "";
-      input.disabled = false;
-      submitBtn.disabled = false;
-      input.value = "";
-      input.focus();
-      newGameBtn.style.display = "none";
-      // console.log("Nova riječ:", tajnaRijec); // za debug
-    }
-
-    submitBtn.addEventListener("click", submitGuess);
-    input.addEventListener("keypress", (e) => {
-      if (e.key === "Enter") submitGuess();
+    goBtn.addEventListener("click", () => {
+      notListDiv.textContent = "";
+      const val = guessEl.value.toLowerCase().trim();
+      if (val.length !== 5) {
+        alert("Unesite točno 5 slova!");
+        return;
+      }
+      if (!rijeci.includes(val)) {
+        notListDiv.textContent = "Riječ nije na popisu";
+        return;
+      }
+      const rowEl = grid.children[attempts];
+      revealRow(rowEl, val);
+      attempts++;
+      guessEl.value = "";
+      if (val === secret) endGame(true);
+      else if (attempts === 6) endGame(false);
     });
-    newGameBtn.addEventListener("click", novaIgra);
 
-    // Pokreni prvu igru odmah
-    novaIgra();
-    
+    // Enter podrška
+    guessEl.addEventListener("keydown", e => {
+      if (e.key === "Enter" && !goBtn.disabled) goBtn.click();
+    });
+
+    nextBtn.addEventListener("click", startGame);
+
+    // Start first game
+    countDiv.textContent = `Pogodio si ${correctCount} riječi`;
+    startGame();
   </script>
-  
-   <h6>© WordleCro</h6> 
- 
   
 </body>
 </html>
 
-    
-  
+
+
+
