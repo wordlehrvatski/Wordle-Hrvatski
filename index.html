@@ -152,6 +152,53 @@ body {
 
 
 
+.quest-box {
+  background-color: #1e1e1e;
+  color: white;
+  padding: 20px;
+  margin-top: 20px;
+  border-radius: 20px;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+  box-shadow: 0 0 10px rgba(0,0,0,0.4);
+}
+
+.quest-box h3 {
+  color: #538d4e;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.quest-box ul {
+  list-style: none;
+  padding: 0;
+}
+
+.quest-box li {
+  padding: 10px;
+  border-bottom: 1px solid #444;
+  display: flex;
+  justify-content: space-between;
+}
+
+.quest-complete {
+  color: #538d4e;
+}
+
+.quest-incomplete {
+  color: #888;
+}
+
+
+
+
+
+
+
+
+
+
 
   </style>
 </head>
@@ -183,10 +230,17 @@ body {
 </div>
 
 
+<div id="questsBox" class="quest-box">
+  <h3>Dnevni izazovi</h3>
+  <ul id="questsList"></ul>
+</div>
+
+
+
   <script>
     const rijeci = [
-      "olovo", "mačke", "kamen", "glava", "polje", "crven", "plava", "zvono", "zebra", "bravo",
-      "lampa", "majka", "mozak", "ulica", "vrije", "zmije", "papir", "patka", "ulica", "noćas",
+      "olovo","mačke","kamen","glava","polje","crven","plava","zvono","zebra","bravo","bazga",
+      "lampa","majka","mozak","ulica","vrije","zmije","papir","patka","ulica","noćas","mudar",
       "zlato","hrast","ponoć","kazna","rebro","poker","čipka","ljeto","gotov","sudac","fosil",
       "nokat","igrač","crkva","matko","cesta","tigar","lopta","život","torba","istra","drava",
       "hrvat","rukav","grana","breza","blago","basna","boris","litva","limun","lagan","lapud",
@@ -205,7 +259,8 @@ body {
       "nikad","zidam","zapad","moler","izlaz","šesto","miris","molim","vokal","azija","milan",
       "ikona","daska","balon","vrata","ekran","krava","cipar","jakna","frula","malac","petar",
       "kotar","audio","sport","kotač","staro","kabel","korak","nokat","jesam","nerad","teren",
-      "perem","nizak","visok"
+      "perem","nizak","visok","gorak","odani","vegas","lovac","motor","blagi","umaci","popis",
+      "plaža","novak",
     ];
 
     let secret = "";
@@ -330,6 +385,8 @@ body {
   
      // Učitaj broj pogođenih riječi iz localStorage
     const pogodeneRijeci = parseInt(localStorage.getItem('pogodeneRijeci')) || 0;
+    
+
 
     function getRank(words) {
        if (words >= 150) return "Master";
@@ -341,7 +398,7 @@ body {
       return "Iron";
     }
 
-  
+
 
   const btn = document.getElementById("rankInfoBtn");
   const popup = document.getElementById("rankPopup");
@@ -356,6 +413,108 @@ body {
       popup.classList.add("hidden");
     }
   });
+
+
+
+// Quest definicije
+const quests = [
+  {
+    id: "firstTry",
+    text: "Pogodi riječ iz prve",
+    completed: false
+  },
+  {
+    id: "streak3",
+    text: "Pogodi 3 riječi zaredom",
+    completed: false
+  },
+  {
+    id: "noA",
+    text: "Pogodi riječ bez slova 'A' ",
+    completed: false
+  }
+];
+
+// Učitaj statuse iz localStorage
+function loadQuests() {
+  const stored = localStorage.getItem("quests");
+  if (stored) {
+    const saved = JSON.parse(stored);
+    quests.forEach(q => {
+      if (saved[q.id] !== undefined) q.completed = saved[q.id];
+    });
+  }
+}
+
+// Spremi statuse u localStorage
+function saveQuests() {
+  const toSave = {};
+  quests.forEach(q => toSave[q.id] = q.completed);
+  localStorage.setItem("quests", JSON.stringify(toSave));
+}
+
+// Prikaži izazove
+function renderQuests() {
+  const list = document.getElementById("questsList");
+  list.innerHTML = "";
+  quests.forEach(q => {
+    const li = document.createElement("li");
+    li.innerHTML = `<span>${q.text}</span><span class="${q.completed ? 'quest-complete' : 'quest-incomplete'}">${q.completed ? "✅" : "❌"}</span>`;
+    list.appendChild(li);
+  });
+}
+
+// Funkcija za označavanje izazova kao završen
+function completeQuest(id) {
+  const quest = quests.find(q => q.id === id);
+  if (quest && !quest.completed) {
+    quest.completed = true;
+    saveQuests();
+    renderQuests();
+  }
+}
+
+// RESET svakog dana (jednostavna provjera dana)
+function resetQuestsIfNeeded() {
+  const today = new Date().toDateString();
+  const lastDate = localStorage.getItem("questsDate");
+  if (lastDate !== today) {
+    quests.forEach(q => q.completed = false);
+    saveQuests();
+    renderQuests();
+    localStorage.setItem("questsDate", today);
+  }
+}
+
+// ===============================
+// INTEGRACIJA SA IGRICOM
+// ===============================
+
+// Kad pogodi riječ
+function onWordGuessed(correct, attemptNumber, wordGuessed) {
+  if (correct && attemptNumber === 1) completeQuest("firstTry");
+  if (correct && !wordGuessed.includes("A")) completeQuest("noA");
+
+  // Ovdje dodaj svoju logiku za streak:
+  updateStreak(correct);
+}
+
+// Za streak
+let currentStreak = 0;
+function updateStreak(correct) {
+  if (correct) {
+    currentStreak++;
+    if (currentStreak >= 3) completeQuest("streak3");
+  } else {
+    currentStreak = 0;
+  }
+}
+
+// Pokreni sve
+loadQuests();
+resetQuestsIfNeeded();
+renderQuests();
+spremiRezultat();
 
 
   </script>
