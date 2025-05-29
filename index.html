@@ -80,13 +80,13 @@ body {
       color: #fcfcfc;
       font-family: Arial, sans-serif;
       text-align: center;
-      padding: 20px;
+      padding: 10px;
     }
     .rank-box {
       background-color: #111;
       padding: 20px 40px;
-      margin: 9px auto;
-      border-radius: 12px;
+      margin: 12px auto;
+      border-radius: 20px;
       width: fit-content;
       font-weight: bold;
       font-size: 19px;
@@ -110,6 +110,49 @@ body {
 }
 
 
+.rank-container {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 20px;
+  color: #538d4e;
+  font-family: Arial, sans-serif;
+}
+
+#rankInfoBtn {
+  margin-left: 8px;
+  cursor: pointer;
+  background-color: #538d4e;
+  border: none;
+  color: white;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+#rankPopup {
+  position: absolute;
+  top: 30px;
+  left: 0;
+  background-color: #222;
+  border: 1px solid #538d4e;
+  padding: 12px;
+  border-radius: 20px;
+  width: 220px;
+  color: #538d4e;
+  z-index: 10;
+  font-size: 14px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+}
+
+.hidden {
+  display: none;
+}
+
+
+
+
   </style>
 </head>
 <body>
@@ -119,14 +162,26 @@ body {
   <div class="grid" id="grid"></div>
   <div id="not-in-list"></div>
   <div id="reveal-word"></div>
-  <button id="next-word-btn">SLJEDEĆA RIJEČ</button>
+  <button id="next-word-btn">Sljedeća Riječ</button>
   <div id="rankBox" class="rank-box">Rank: Iron</div>
 
-   
-  
+ 
+  <div class="rank-container">
+  <button id="rankInfoBtn">?</button>
+  <div id="rankPopup" class="hidden">
+    <p><strong>Ranks:</strong></p>
+    <ul>
+      <li>Manje od 25 riječi pogođeno - <b>Iron</b></li>
+      <li>Više od 25 riječi pogođeno - <b>Bronze</b></li>
+      <li>Više od 40 riječi pogođeno - <b>Silver</b></li>
+      <li>Više od 60 riječi pogođeno - <b>Gold</b></li>
+      <li>Više od 85 riječi pogodak - <b>Platinum</b></li>
+      <li>Više od 105 riječi pogođeno - <b>Diamond</b></li>
+      <li>Više 150 riječi pogođeno - <b>Master</b></li>
+    </ul>
+  </div>
+</div>
 
-
-  
 
   <script>
     const rijeci = [
@@ -286,10 +341,23 @@ body {
       return "Iron";
     }
 
-    // Prikaži rank u divu
-    document.getElementById('rankBox').textContent = 'Rank: ' + getRank(pogodeneRijeci);
   
-  
+
+  const btn = document.getElementById("rankInfoBtn");
+  const popup = document.getElementById("rankPopup");
+
+  btn.addEventListener("click", () => {
+    popup.classList.toggle("hidden");
+  });
+
+  // Klik izvan popup-a zatvara ga
+  window.addEventListener("click", function(e) {
+    if (!btn.contains(e.target) && !popup.contains(e.target)) {
+      popup.classList.add("hidden");
+    }
+  });
+
+
   </script>
 
   <div class="icons">
