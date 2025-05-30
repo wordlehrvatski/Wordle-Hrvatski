@@ -210,31 +210,12 @@ body {
   <div id="not-in-list"></div>
   <div id="reveal-word"></div>
   <button id="next-word-btn">Sljedeća Riječ</button>
-  <div id="rankBox" class="rank-box">Rank: Iron</div>
-
- 
-  <div class="rank-container">
-  <button id="rankInfoBtn">?</button>
-  <div id="rankPopup" class="hidden">
-    <p><strong>Ranks:</strong></p>
-    <ul>
-      <li>Manje od 25 riječi pogođeno - <b>Iron</b></li>
-      <li>Više od 25 riječi pogođeno - <b>Bronze</b></li>
-      <li>Više od 40 riječi pogođeno - <b>Silver</b></li>
-      <li>Više od 60 riječi pogođeno - <b>Gold</b></li>
-      <li>Više od 85 riječi pogodak - <b>Platinum</b></li>
-      <li>Više od 105 riječi pogođeno - <b>Diamond</b></li>
-      <li>Više 150 riječi pogođeno - <b>Master</b></li>
-    </ul>
-  </div>
-</div>
-
+  
 
 <div id="questsBox" class="quest-box">
   <h3>Dnevni izazovi</h3>
   <ul id="questsList"></ul>
 </div>
-
 
 
   <script>
@@ -383,36 +364,6 @@ body {
     startGame();
 
   
-     // Učitaj broj pogođenih riječi iz localStorage
-    const pogodeneRijeci = parseInt(localStorage.getItem('pogodeneRijeci')) || 0;
-    
-
-
-    function getRank(words) {
-       if (words >= 150) return "Master";
-      if (words >= 105) return "Diamond";
-      if (words >= 85) return "Platinuim";
-      if (words >= 60) return "Gold";
-      if (words >= 40) return "Silver";
-      if (words >= 25) return "Bronze";
-      return "Iron";
-    }
-
-
-
-  const btn = document.getElementById("rankInfoBtn");
-  const popup = document.getElementById("rankPopup");
-
-  btn.addEventListener("click", () => {
-    popup.classList.toggle("hidden");
-  });
-
-  // Klik izvan popup-a zatvara ga
-  window.addEventListener("click", function(e) {
-    if (!btn.contains(e.target) && !popup.contains(e.target)) {
-      popup.classList.add("hidden");
-    }
-  });
 
 
 
